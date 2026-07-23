@@ -56,6 +56,32 @@ const userSchema = new mongoose.Schema(
     bio: {
       type: String,
     },
+
+    plan: {
+      type: String,
+      enum: ["free", "pro", "proYearly"],
+      default: "free",
+    },
+
+    projectsCreatedCount: {
+      type: Number,
+      default: 0,
+    },
+
+    planStartedAt: {
+      type: Date,
+      default: null,
+    },
+
+    planExpiresAt: {
+      type: Date,
+      default: null, // null = never expires (free plan)
+    },
+
+    autoRenew: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   {
@@ -96,7 +122,6 @@ userSchema.methods.generatePasswordResetToken = function () {
   // 4. Return the UNHASHED token — this is what gets emailed to the user
   return resetToken;
 };
-
 
 const User = mongoose.model("User", userSchema);
 

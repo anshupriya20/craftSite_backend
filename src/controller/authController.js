@@ -1,4 +1,6 @@
 import { User } from "../models/userModel";
+const generateToken = require("../utils/generateToken");
+const crypto = require("crypto");
 
 // ======================REGISTER USER======================
 const registerUser = async (req, res, next) => {
@@ -44,12 +46,22 @@ const login = async (req, res, next) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
+    const token = generateToken(user._id);
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
+    });
+
     res.status(201).json({
       message: "User Login Successfully.",
       user: {
         id: user._id,
         email: user.email,
         name: user.name,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -58,7 +70,7 @@ const login = async (req, res, next) => {
   }
 };
 
-// =============================FORGOT PASSWORD=============================
+// =============================FORGOT PASSWORD=====================================
 const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
@@ -71,7 +83,8 @@ const forgotPassword = async (req, res, next) => {
 
     if (!user) {
       return res.status(200).json({
-        message: "If that email is registered, a password reset link has been sent.",
+        message:
+          "If that email is registered, a password reset link has been sent.",
       });
     }
 
@@ -82,7 +95,8 @@ const forgotPassword = async (req, res, next) => {
     console.log(`Reset Token for ${email}: ${resetToken}`);
 
     return res.status(200).json({
-      message: "If that email is registered, a password reset link has been sent.",
+      message:
+        "If that email is registered, a password reset link has been sent.",
     });
   } catch (error) {
     console.error(error);
@@ -90,6 +104,7 @@ const forgotPassword = async (req, res, next) => {
   }
 };
 
+// ==============================RESET PASSWORD=====================================
 const resetPassword = async (req, res, next) => {
   try {
     const { token } = req.params;
@@ -100,10 +115,7 @@ const resetPassword = async (req, res, next) => {
     }
 
     // Hash the token from the URL to compare with the stored hash in DB
-    const hashedToken = crypto
-      .createHash("sha256")
-      .update(token)
-      .digest("hex");
+    const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
@@ -124,6 +136,69 @@ const resetPassword = async (req, res, next) => {
     return res.status(200).json({ message: "Password reset successful" });
   } catch (error) {
     console.error(error);
+    next(error);
+  }
+};
+
+// =================================CHANGE PASSWORD==================================
+const changePassword = async (req, res, next) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    const userId = req.user.id; // assumes auth middleware attached this from a verified JWT
+    const user = await User.findById(userId).select("+password");
+
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Current password is incorrect" });
+    }
+
+    user.password = newPassword; // pre-save hook hashes it
+    await user.save();
+
+    res.status(200).json({ message: "Password changed successfully" });
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
+
+// ================================USER DETAILS=====================================
+const updateUserDetails = async (req, res, next) => {
+  const { name, avatar, bio } = req.body;
+
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { name, avatar, bio },
+    { new: true, runValidators: true },
+  );
+
+  res.status(200).json({ message: "Profile updated", user });
+};
+
+// ==============================CURRENT USER=======================================
+const getCurrentUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json({ user });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// ================================LOGOUT USER======================================
+const logoutUser = async (req, res, next) => {
+  try {
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
     next(error);
   }
 };
