@@ -1,7 +1,6 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
 
-// 1. "protect" — verifies the user is logged in at all
 const protect = async (req, res, next) => {
   try {
     let token;
@@ -31,7 +30,7 @@ const protect = async (req, res, next) => {
   }
 };
 
-// 2. "restrictTo" — verifies the logged-in user has the right ROLE
+//  "restrictTo" — verifies the logged-in user has the right ROLE
 const restrictTo = (...allowedRoles) => {
   return (req, res, next) => {
     if (!allowedRoles.includes(req.user.role)) {
