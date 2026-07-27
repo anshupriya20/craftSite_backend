@@ -1,4 +1,4 @@
-import { User } from "../models/userModel";
+const  User  = require("../models/userModel");
 const generateToken = require("../utils/generateToken");
 const crypto = require("crypto");
 
@@ -165,15 +165,19 @@ const changePassword = async (req, res, next) => {
 
 // ================================USER DETAILS=====================================
 const updateUserDetails = async (req, res, next) => {
-  const { name, avatar, bio } = req.body;
+  try {
+    const { name, avatar, bio } = req.body;
 
-  const user = await User.findByIdAndUpdate(
-    userId,
-    { name, avatar, bio },
-    { new: true, runValidators: true },
-  );
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { name, avatar, bio },
+      { new: true, runValidators: true }
+    );
 
-  res.status(200).json({ message: "Profile updated", user });
+    res.status(200).json({ message: "Profile updated", user });
+  } catch (error) {
+    next(error);
+  }
 };
 
 // ==============================CURRENT USER=======================================
@@ -201,4 +205,15 @@ const logoutUser = async (req, res, next) => {
   } catch (error) {
     next(error);
   }
+};
+
+module.exports = {
+  registerUser,
+  login,
+  forgotPassword,
+  resetPassword,
+  changePassword,
+  updateUserDetails,
+  getCurrentUser,
+  logoutUser,
 };

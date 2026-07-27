@@ -1,4 +1,4 @@
-const User = require("../models/User.model");
+const User = require("../models/userModel");
 
 // GET all users — admin only
 const getAllUsers = async (req, res, next) => {

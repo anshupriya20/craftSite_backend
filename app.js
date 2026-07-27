@@ -1,40 +1,47 @@
+require("dotenv").config();
 const express = require("express");
-const authRoutes = require("./routes/auth.routes");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const connectDB = require("./src/config/db");
 
 const errorHandler = require("./src/middleware/errorHandler");
 const authRoutes = require("./src/routes/authRoutes");
-const projectRoutes = require("./src/routes/projectRoutes");
-const uploadRoutes = require("./src/routes/uploadRoutes");
-const cookieParser = require("cookie-parser");
-
+// const projectRoutes = require("./src/routes/projectRoutes");
+// const uploadRoutes = require("./src/routes/uploadRoutes");
 
 const app = express();
+
+// Connect to MongoDB
+connectDB();
 
 app.use(express.json());
 app.use(cookieParser());
 
 app.use(
-    cors({
-        origin: process.env.CLIENT_URL || "http://localhost:3000",
-        credentials: true
-    })
+  cors({
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    credentials: true,
+  }),
 );
 
 app.get("/", (req, res) => {
-    res.status(200).json({message: "CraftSite API is running"});
+  res.status(200).json({ message: "CraftSite API is running" });
 });
 
 app.use("/api/auth", authRoutes);
-app.use("/app/projects", projectRoutes);
-app.use("/api/upload", uploadRoutes);
+// app.use("/api/projects", projectRoutes);
+// app.use("/api/upload", uploadRoutes);
 
-// ==================404 HANDLER - for any route that doesn't match above =====================
-app.use((req,res) => {
-    res.status(404).json({message: "Route not found"});
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
 });
 
-// ===============CENTRALIZED ERROR HANDLER-MUST BE LAST============================
+// centralized error handler — must be last
 app.use(errorHandler);
 
-module.exports = app;
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

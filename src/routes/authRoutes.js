@@ -1,4 +1,4 @@
-const cookieParser = require("cookie-parser");
+const express = require("express");
 const { protect } = require("../middleware/authMiddleware");
 const {
   registerUser,
@@ -11,8 +11,8 @@ const {
   logoutUser,
 } = require("../controller/authController");
 
-const router = expres.Router();
-app.use(cookieParser());
+
+const router = express.Router();
 
 // ── Public routes — no login required ──
 router.post("/register", registerUser);
@@ -25,8 +25,5 @@ router.post("/logout", protect, logoutUser);
 router.get("/me", protect, getCurrentUser);
 router.put("/change-password", protect, changePassword);
 router.put("/update-details", protect, updateUserDetails);
-
-
-
 
 module.exports = router;

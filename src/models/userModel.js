@@ -1,5 +1,6 @@
+const crypto = require("crypto");
 const mongoose = require("mongoose");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 
 const userSchema = new mongoose.Schema(
   {
@@ -90,16 +91,14 @@ const userSchema = new mongoose.Schema(
 );
 
 // Pre-save hook: runs automatically every time a user document is about to be saved
-userSchema.pre("save", async function (next) {
-  // Only hash the password if it's new or being changed
+userSchema.pre("save", async function () {
   if (!this.isModified("password")) {
-    return next();
+    return; // just return — no next() needed
   }
 
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
-
-  next();
+  // no next() call — Mongoose proceeds automatically once this async function resolves
 });
 
 userSchema.methods.comparePassword = async function (enteredPassword) {
@@ -125,4 +124,4 @@ userSchema.methods.generatePasswordResetToken = function () {
 
 const User = mongoose.model("User", userSchema);
 
-module.export = User;
+module.exports = User;
