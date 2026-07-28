@@ -3,11 +3,13 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./src/config/db");
+const cloudinary = require("./src/config/claudinary");
 
 const errorHandler = require("./src/middleware/errorHandler");
 const authRoutes = require("./src/routes/authRoutes");
-// const projectRoutes = require("./src/routes/projectRoutes");
-// const uploadRoutes = require("./src/routes/uploadRoutes");
+const projectRoutes = require("./src/routes/projectRoutes");
+const uploadRoutes = require("./src/routes/uploadRoutes");
+const userRoutes = require("./src/routes/userRoutes");
 
 const app = express();
 
@@ -29,8 +31,9 @@ app.get("/", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
-// app.use("/api/projects", projectRoutes);
-// app.use("/api/upload", uploadRoutes);
+app.use("/api/projects", projectRoutes);
+app.use("/api/upload", uploadRoutes);
+app.use("/api/user", userRoutes);
 
 // 404 handler
 app.use((req, res) => {

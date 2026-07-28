@@ -19,10 +19,10 @@ router.get("/:id/preview", previewProject);
 
 // ── Protected routes — must be logged in ──
 router.post("/", protect, validateProjectInput, createProject);
-router.get("/", protect, getMyProjects);
+router.get("/all-projects", protect, getMyProjects);
 router.get("/:id", protect, getProjectById);
-router.put("/:id", protect, validateProjectInput, updateProject);
-router.delete("/:id", protect, deleteProject);
+router.put("/update-details/:id", protect, validateProjectInput, updateProject);
+router.delete("/:id/delete-project", protect, deleteProject);
 router.post("/:id/publish", protect, publishProject);
 
 module.exports = router;

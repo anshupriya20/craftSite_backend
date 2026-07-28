@@ -8,3 +8,4 @@ const checkAndDowngradeIfExpired = async (user) => {
 };
 
 module.exports = checkAndDowngradeIfExpired;
+

@@ -1,12 +1,9 @@
+const User = require("../models/userModel");
 const Project = require("../models/projectModel");
 const PLANS = require("../config/plans");
+const checkAndDowngradeIfExpired = require("../utils/checkPlanExpiry")
 
 // ============================CREATE=============================
-const PLAN_LIMITS = {
-  free: 3,
-  pro: Infinity,
-};
-
 const createProject = async (req, res, next) => {
   try {
     let user = await User.findById(req.user.id);
@@ -175,4 +172,5 @@ module.exports = {
   updateProject,
   deleteProject,
   publishProject,
+  previewProject
 };
