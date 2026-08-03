@@ -13,6 +13,13 @@ const userRoutes = require("./src/routes/userRoutes");
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://192.168.1.2:3000",
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
 // Connect to MongoDB
 connectDB();
 
@@ -21,7 +28,14 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: function (origin, callback) {
+      // allow requests with no origin (like mobile apps, curl, or server-to-server)
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   }),
 );

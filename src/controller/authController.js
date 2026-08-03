@@ -26,7 +26,7 @@ const registerUser = async (req, res, next) => {
 };
 
 // ================================LOGIN USER===========================
-const login = async (req, res, next) => {
+const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -209,7 +209,7 @@ const logoutUser = async (req, res, next) => {
 
 module.exports = {
   registerUser,
-  login,
+  loginUser,
   forgotPassword,
   resetPassword,
   changePassword,

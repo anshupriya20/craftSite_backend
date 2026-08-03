@@ -2,7 +2,7 @@ const express = require("express");
 const { protect } = require("../middleware/authMiddleware");
 const {
   registerUser,
-  login,
+  loginUser,
   forgotPassword,
   resetPassword,
   changePassword,
@@ -16,7 +16,7 @@ const router = express.Router();
 
 // ── Public routes — no login required ──
 router.post("/register", registerUser);
-router.post("/login", login);
+router.post("/login", loginUser);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 
