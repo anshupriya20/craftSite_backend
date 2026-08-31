@@ -20,7 +20,12 @@
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.8.0",
     "multer": "^2.2.0",
-    "multer-storage-cloudinary": "^4.0.0"
+    "multer-storage-cloudinary": "^4.0.0",
+    "nodemailer": "^9.0.5",
+    "passport": "^0.7.0",
+    "passport-github2": "^0.1.12",
+    "passport-google-oauth20": "^2.0.0",
+    "razorpay": "^2.9.8"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

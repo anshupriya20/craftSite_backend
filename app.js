@@ -10,13 +10,15 @@ const authRoutes = require("./src/routes/authRoutes");
 const projectRoutes = require("./src/routes/projectRoutes");
 const uploadRoutes = require("./src/routes/uploadRoutes");
 const userRoutes = require("./src/routes/userRoutes");
+const passport = require("./src/config/passport");
+const paymentRoutes = require("./src/routes/paymentRoutes");
 
 const app = express();
-
 const allowedOrigins = [
   "http://localhost:3000",
   "http://127.0.0.1:3000",
-  "http://192.168.1.26:3000",
+  "http://192.168.1.33:3000",
+  "http://192.168.1.47:3000",
   process.env.CLIENT_URL,
 ].filter(Boolean);
 
@@ -44,10 +46,12 @@ app.get("/", (req, res) => {
   res.status(200).json({ message: "CraftSite API is running" });
 });
 
+app.use(passport.initialize());
 app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/payment", paymentRoutes);
 
 // 404 handler
 app.use((req, res) => {

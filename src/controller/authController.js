@@ -1,5 +1,7 @@
-const  User  = require("../models/userModel");
+const User = require("../models/userModel");
 const generateToken = require("../utils/generateToken");
+const sendEmail = require("../utils/sendEmail");
+
 const crypto = require("crypto");
 
 // ======================REGISTER USER======================
@@ -71,16 +73,45 @@ const loginUser = async (req, res, next) => {
 };
 
 // =============================FORGOT PASSWORD=====================================
+// const forgotPassword = async (req, res, next) => {
+//   try {
+//     const { email } = req.body;
+
+//     if (!email) {
+//       return res.status(400).json({ message: "Email is required" });
+//     }
+
+//     const user = await User.findOne({ email });
+
+//     if (!user) {
+//       return res.status(200).json({
+//         message:
+//           "If that email is registered, a password reset link has been sent.",
+//       });
+//     }
+
+//     // Generate reset token using your schema instance method
+//     const resetToken = user.generatePasswordResetToken();
+//     await user.save({ validateBeforeSave: false });
+
+//     console.log(`Reset Token for ${email}: ${resetToken}`);
+
+//     return res.status(200).json({
+//       message:
+//         "If that email is registered, a password reset link has been sent.",
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     next(error);
+//   }
+// };
+
 const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({ message: "Email is required" });
-    }
+    if (!email) return res.status(400).json({ message: "Email is required" });
 
     const user = await User.findOne({ email });
-
     if (!user) {
       return res.status(200).json({
         message:
@@ -88,11 +119,21 @@ const forgotPassword = async (req, res, next) => {
       });
     }
 
-    // Generate reset token using your schema instance method
     const resetToken = user.generatePasswordResetToken();
     await user.save({ validateBeforeSave: false });
 
-    console.log(`Reset Token for ${email}: ${resetToken}`);
+    const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+
+    await sendEmail({
+      to: user.email,
+      subject: "Reset your CraftSite password",
+      html: `
+        <p>Hi ${user.name},</p>
+        <p>Click the link below to reset your password. This link expires in 10 minutes.</p>
+        <p><a href="${resetUrl}">${resetUrl}</a></p>
+        <p>If you didn't request this, you can safely ignore this email.</p>
+      `,
+    });
 
     return res.status(200).json({
       message:
@@ -171,7 +212,7 @@ const updateUserDetails = async (req, res, next) => {
     const user = await User.findByIdAndUpdate(
       req.user.id,
       { name, avatar, bio },
-      { new: true, runValidators: true }
+      { new: true, runValidators: true },
     );
 
     res.status(200).json({ message: "Profile updated", user });
@@ -179,6 +220,8 @@ const updateUserDetails = async (req, res, next) => {
     next(error);
   }
 };
+
+
 
 // ==============================CURRENT USER=======================================
 const getCurrentUser = async (req, res, next) => {

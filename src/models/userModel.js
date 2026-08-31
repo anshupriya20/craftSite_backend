@@ -21,8 +21,10 @@ const userSchema = new mongoose.Schema(
     // SignIn
     password: {
       type: String,
-      required: true,
-      selected: false,
+      required: function () {
+        return !this.googleId && !this.githubId; // only required for email/password signups
+      },
+      select: false,
     },
 
     // ── Role-based access (admin vs user) ──
@@ -39,6 +41,16 @@ const userSchema = new mongoose.Schema(
 
     resetPasswordExpires: {
       type: Date,
+    },
+
+    //google & github
+    googleId: {
+      type: String,
+      default: null,
+    },
+    githubId: {
+      type: String,
+      default: null,
     },
 
     // ── Account status (optional but common) ──
@@ -92,7 +104,7 @@ const userSchema = new mongoose.Schema(
 
 // Pre-save hook: runs automatically every time a user document is about to be saved
 userSchema.pre("save", async function () {
-  if (!this.isModified("password")) {
+  if (!this.isModified("password") || !this.password) {
     return; // just return — no next() needed
   }
 
@@ -125,3 +137,78 @@ userSchema.methods.generatePasswordResetToken = function () {
 const User = mongoose.model("User", userSchema);
 
 module.exports = User;
+
+
+
+// plan: {
+//   type: String,
+//   enum: ["free", "pro", "proYearly"],
+//   default: "free",
+// },
+
+// planStartedAt: {
+//   type: Date,
+//   default: null,
+// },
+
+// planExpiresAt: {
+//   type: Date,
+//   default: null,
+// },
+
+// autoRenew: {
+//   type: Boolean,
+//   default: false,
+// },
+
+// // How the user received this plan
+// planSource: {
+//   type: String,
+//   enum: ["free", "admin", "razorpay", "stripe"],
+//   default: "free",
+// },
+
+// // Payment provider
+// paymentProvider: {
+//   type: String,
+//   enum: ["razorpay", "stripe", null],
+//   default: null,
+// },
+
+// // Razorpay/Stripe customer ID
+// paymentCustomerId: {
+//   type: String,
+//   default: null,
+// },
+
+// // Razorpay/Stripe subscription ID
+// paymentSubscriptionId: {
+//   type: String,
+//   default: null,
+// },
+
+// // Current billing state
+// subscriptionStatus: {
+//   type: String,
+//   enum: [
+//     "inactive",
+//     "trialing",
+//     "active",
+//     "past_due",
+//     "cancelled",
+//     "expired",
+//     "halted",
+//   ],
+//   default: "inactive",
+// },
+
+// // User requested cancellation but still has access
+// cancelAtPeriodEnd: {
+//   type: Boolean,
+//   default: false,
+// },
+
+// cancelledAt: {
+//   type: Date,
+//   default: null,
+// },

@@ -87,6 +87,55 @@ const updateUserPlan = async (req, res, next) => {
   }
 };
 
+
+// const updateUserPlan = async (req, res, next) => {
+//   try {
+//     const { plan } = req.body;
+//     const PLANS = require("../config/plans");
+
+//     if (!Object.keys(PLANS).includes(plan)) {
+//       return res.status(400).json({
+//         message: "Invalid plan",
+//       });
+//     }
+
+//     const update = {
+//       plan,
+//       planStartedAt: new Date(),
+//     };
+
+//     // Admin-granted free/manual plan
+//     if (plan === "free") {
+//       update.planExpiresAt = null;
+//       update.autoRenew = false;
+//       update.cancelAtPeriodEnd = false;
+//       update.paymentSubscriptionId = null;
+//       update.subscriptionStatus = "inactive";
+//     }
+
+//     const user = await User.findByIdAndUpdate(
+//       req.params.id,
+//       update,
+//       {
+//         new: true,
+//         runValidators: true,
+//       }
+//     ).select("-password");
+
+//     if (!user) {
+//       return res.status(404).json({
+//         message: "User not found",
+//       });
+//     }
+
+//     res.status(200).json({
+//       message: "User plan updated",
+//       user,
+//     });
+//   } catch (error) {
+//     next(error);
+//   }
+// };
 module.exports = {
   getAllUsers,
   getUserById,
