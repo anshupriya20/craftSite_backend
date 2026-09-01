@@ -21,8 +21,29 @@ const app = express();
 //   "http://192.168.1.47:3000",
 //   process.env.CLIENT_URL,
 // ].filter(Boolean);
-const allowedOrigins = ["http://localhost:3000", process.env.CLIENT_URL].filter(
-  Boolean,
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://interactive-website-builder-ochre.vercel.app",
+  process.env.CLIENT_URL,
+].filter(Boolean);
+
+console.log("CLIENT_URL:", process.env.CLIENT_URL);
+console.log("Allowed Origins:", allowedOrigins);
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      console.log("Incoming CORS Origin:", origin);
+
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        console.log("❌ CORS rejected:", origin);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  }),
 );
 
 // Connect to MongoDB
@@ -31,19 +52,19 @@ connectDB();
 app.use(express.json());
 app.use(cookieParser());
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // allow requests with no origin (like mobile apps, curl, or server-to-server)
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-  }),
-);
+// app.use(
+//   cors({
+//     origin: function (origin, callback) {
+//       // allow requests with no origin (like mobile apps, curl, or server-to-server)
+//       if (!origin || allowedOrigins.includes(origin)) {
+//         callback(null, true);
+//       } else {
+//         callback(new Error("Not allowed by CORS"));
+//       }
+//     },
+//     credentials: true,
+//   }),
+// );
 
 app.get("/", (req, res) => {
   res.status(200).json({ message: "CraftSite API is running" });
