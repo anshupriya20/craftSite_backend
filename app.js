@@ -23,7 +23,6 @@ const app = express();
 // ].filter(Boolean);
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://interactive-website-builder-ochre.vercel.app",
   process.env.CLIENT_URL,
 ].filter(Boolean);
 
