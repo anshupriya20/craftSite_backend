@@ -1,32 +1,13 @@
-// const nodemailer = require("nodemailer");
-
-// const createTransporter = async () => {
-//   // For quick dev testing — auto-generates a throwaway test inbox
-//   const testAccount = await nodemailer.createTestAccount();
-
-//   return nodemailer.createTransport({
-//     host: "smtp.ethereal.email",
-//     port: 587,
-//     secure: false,
-//     auth: {
-//       user: testAccount.user,
-//       pass: testAccount.pass,
-//     },
-//   });
-// };
-
-// module.exports = createTransporter;
-
 const nodemailer = require("nodemailer");
 
-const createTransporter = async () => {
+const createTransporter = () => {
   return nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: process.env.SMTP_SECURE === "true",
+    host: process.env.EMAIL_HOST,
+    port: Number(process.env.EMAIL_PORT) || 587,
+    secure: Number(process.env.EMAIL_PORT) === 465, // true for port 465, false for 587/others
     auth: {
-      user: process.env.SMTP_USER,
-      pass: process.env.SMTP_PASS,
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
 };

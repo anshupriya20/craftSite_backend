@@ -106,10 +106,50 @@ const loginUser = async (req, res, next) => {
 //   }
 // };
 
+// const forgotPassword = async (req, res, next) => {
+// try {
+//   const { email } = req.body;
+//   if (!email) return res.status(400).json({ message: "Email is required" });
+
+//   const user = await User.findOne({ email });
+//   if (!user) {
+//     return res.status(200).json({
+//       message:
+//         "If that email is registered, a password reset link has been sent.",
+//     });
+//   }
+
+//     const resetToken = user.generatePasswordResetToken();
+//     await user.save({ validateBeforeSave: false });
+
+//     const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+
+//     await sendEmail({
+//       to: user.email,
+//       subject: "Reset your CraftSite password",
+//       html: `
+//         <p>Hi ${user.name},</p>
+//         <p>Click the link below to reset your password. This link expires in 10 minutes.</p>
+//         <p><a href="${resetUrl}">${resetUrl}</a></p>
+//         <p>If you didn't request this, you can safely ignore this email.</p>
+//       `,
+//     });
+
+//     return res.status(200).json({
+//       message:
+//         "If that email is registered, a password reset link has been sent.",
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     next(error);
+//   }
+// };
 const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
-    if (!email) return res.status(400).json({ message: "Email is required" });
+    if (!email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
 
     const user = await User.findOne({ email });
     if (!user) {
@@ -124,26 +164,35 @@ const forgotPassword = async (req, res, next) => {
 
     const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
-    await sendEmail({
-      to: user.email,
-      subject: "Reset your CraftSite password",
-      html: `
-        <p>Hi ${user.name},</p>
-        <p>Click the link below to reset your password. This link expires in 10 minutes.</p>
-        <p><a href="${resetUrl}">${resetUrl}</a></p>
-        <p>If you didn't request this, you can safely ignore this email.</p>
-      `,
-    });
+    try {
+      await sendEmail({
+        to: user.email,
+        subject: "Reset your CraftSite password",
+        html: `
+          <p>Hi ${user.name},</p>
+          <p>Click the link below to reset your password. This link expires in 10 minutes.</p>
+          <p><a href="${resetUrl}">${resetUrl}</a></p>
+          <p>If you didn't request this, you can safely ignore this email.</p>
+        `,
+      });
+    } catch (emailError) {
+      console.error("Failed to send reset email:", emailError);
+
+      // Clean up reset token fields in DB if email fails to send
+      user.passwordResetToken = undefined;
+      user.passwordResetExpires = undefined;
+      await user.save({ validateBeforeSave: false });
+    }
 
     return res.status(200).json({
       message:
         "If that email is registered, a password reset link has been sent.",
     });
   } catch (error) {
-    console.error(error);
     next(error);
   }
 };
+
 
 // ==============================RESET PASSWORD=====================================
 const resetPassword = async (req, res, next) => {
@@ -220,8 +269,6 @@ const updateUserDetails = async (req, res, next) => {
     next(error);
   }
 };
-
-
 
 // ==============================CURRENT USER=======================================
 const getCurrentUser = async (req, res, next) => {
