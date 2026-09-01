@@ -53,7 +53,7 @@ const loginUser = async (req, res, next) => {
     res.cookie("token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
     });
 
@@ -73,77 +73,6 @@ const loginUser = async (req, res, next) => {
 };
 
 // =============================FORGOT PASSWORD=====================================
-// const forgotPassword = async (req, res, next) => {
-//   try {
-//     const { email } = req.body;
-
-//     if (!email) {
-//       return res.status(400).json({ message: "Email is required" });
-//     }
-
-//     const user = await User.findOne({ email });
-
-//     if (!user) {
-//       return res.status(200).json({
-//         message:
-//           "If that email is registered, a password reset link has been sent.",
-//       });
-//     }
-
-//     // Generate reset token using your schema instance method
-//     const resetToken = user.generatePasswordResetToken();
-//     await user.save({ validateBeforeSave: false });
-
-//     console.log(`Reset Token for ${email}: ${resetToken}`);
-
-//     return res.status(200).json({
-//       message:
-//         "If that email is registered, a password reset link has been sent.",
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     next(error);
-//   }
-// };
-
-// const forgotPassword = async (req, res, next) => {
-// try {
-//   const { email } = req.body;
-//   if (!email) return res.status(400).json({ message: "Email is required" });
-
-//   const user = await User.findOne({ email });
-//   if (!user) {
-//     return res.status(200).json({
-//       message:
-//         "If that email is registered, a password reset link has been sent.",
-//     });
-//   }
-
-//     const resetToken = user.generatePasswordResetToken();
-//     await user.save({ validateBeforeSave: false });
-
-//     const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
-
-//     await sendEmail({
-//       to: user.email,
-//       subject: "Reset your CraftSite password",
-//       html: `
-//         <p>Hi ${user.name},</p>
-//         <p>Click the link below to reset your password. This link expires in 10 minutes.</p>
-//         <p><a href="${resetUrl}">${resetUrl}</a></p>
-//         <p>If you didn't request this, you can safely ignore this email.</p>
-//       `,
-//     });
-
-//     return res.status(200).json({
-//       message:
-//         "If that email is registered, a password reset link has been sent.",
-//     });
-//   } catch (error) {
-//     console.error(error);
-//     next(error);
-//   }
-// };
 const forgotPassword = async (req, res, next) => {
   try {
     const { email } = req.body;
@@ -192,7 +121,6 @@ const forgotPassword = async (req, res, next) => {
     next(error);
   }
 };
-
 
 // ==============================RESET PASSWORD=====================================
 const resetPassword = async (req, res, next) => {
