@@ -35,8 +35,9 @@ router.get(
     const token = generateToken(req.user._id);
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      // secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      secure: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     res.redirect(`${process.env.CLIENT_URL}/dashboard`);
@@ -59,8 +60,9 @@ router.get(
     const token = generateToken(req.user._id);
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      // secure: process.env.NODE_ENV === "production",
+      sameSite: "none",
+      secure: true,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     res.redirect(`${process.env.CLIENT_URL}/dashboard`);
